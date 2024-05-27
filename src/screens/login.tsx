@@ -1,11 +1,43 @@
 import { View, Text, TouchableOpacity, Image, StyleSheet, TextInput } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+
 
 export default function Login() {
-    const navigation = useNavigation();
-    const [username, setUsername] = useState('');
-    const [password , setPassword] = useState('')
+    const navigation:any = useNavigation();
+    const [username, setUsername] = useState('quannikess@gmail.com');
+    const [password , setPassword] = useState('123456');
+    const [role , setRole] = useState('')
+
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post('http://localhost:3050/gateway/api/access/login' , {
+                email:username,
+                password:password,
+            });
+            if(response.data.status == 200 && response.data){
+
+                await AsyncStorage.setItem('authorization' , response.data.data.tokens.accessToken)
+                const accessToken = await AsyncStorage.getItem('authorization');
+                console.log('authorization:', accessToken);
+                
+                if(response.data.data.role == 'ADMIN'){
+                    navigation.navigate('HomeStaffManager')
+                }
+                if(response.data.data.role == 'STAFF' || response.data.data.role == 'MANAGER' ){
+                    navigation.navigate('HomeStaffManager')
+                }
+            }
+            
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return (
         <View style={styles.container}>
             
@@ -43,7 +75,7 @@ export default function Login() {
 
             {/* View chứa nút Đăng Nhập */}
             <View style={styles.bottom}>
-                <TouchableOpacity style={styles.buttom} onPress={() => navigation.navigate("HomeStaffManager")}>
+                <TouchableOpacity style={styles.buttom} onPress={handleLogin}>
                     <Text style = {styles.text}>Đăng Nhập</Text>
                 </TouchableOpacity>
             </View>

@@ -1,76 +1,103 @@
-import React from 'react'
-import { View , Text, TextComponent, StyleSheet  } from 'react-native'
-import { Icon, Button } from '@rneui/themed';
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import Timeline from 'react-native-timeline-flatlist';
+
+type TimelineItem = {
+  time: string;
+  title: string;
+  description: string;
+  circleColor: string;
+  lineColor: string;
+};
+
+const rawData: TimelineItem[] = [
+  {
+    time: '2015-09-01',
+    title: 'Create a services site 1',
+    description: 'Create a services site 2015-09-01',
+    circleColor: '#86C166',
+    lineColor: '#86C166',
+  },
+  {
+    time: '2015-09-01',
+    title: 'Create a services site 2',
+    description: 'Create a services site 2015-09-01',
+    circleColor: '#86C166',
+    lineColor: '#86C166',
+  },
+  {
+    time: '2015-09-01',
+    title: 'Solve initial network problems 3',
+    description: 'Solve initial network problems 3 2015-09-01',
+    circleColor: '#E94B3C',
+    lineColor: '#E94B3C',
+  },
+  {
+    time: '2015-09-02',
+    title: 'Technical testing 1',
+    description: 'Technical testing 3 2015-09-01',
+    circleColor: '#3B5998',
+    lineColor: '#3B5998',
+  },
+  {
+    time: '2015-09-02',
+    title: 'Technical testing 2',
+    description: 'Technical testing 3 2015-09-01',
+    circleColor: '#3B5998',
+    lineColor: '#3B5998',
+  },
+  {
+    time: '2015-09-03',
+    title: 'Technical testing 3',
+    description: 'Technical testing 3 2015-09-01',
+    circleColor: '#3B5998',
+    lineColor: '#3B5998',
+  },
+];
 
 
-const Report = ({})  => {
+
+const Report = (Data :any) => {
   return (
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <Timeline
+        data={rawData}
+        circleSize={20}
+        circleColor="rgba(0,0,0,0)"
+        lineColor="rgb(45,156,219)"
+        timeContainerStyle={{minWidth: 52, marginTop: 0}}
+        timeStyle={{
+          textAlign: 'center',
+          color: 'black',
+          padding: 5,
+          borderRadius: 13,
+        }}
+        descriptionStyle={{color: 'gray'}}
+        innerCircle="dot"
+      
+      />
+    </View>
+  );
+};
 
-          <View style={styles.header}>
-            <View style={{flex:1.8, flexDirection : 'row' , justifyContent : 'space-between'}}>
-              <Text style={{fontSize:20 , fontWeight : 'bold'}}>19/3/2024</Text>
-              
-            </View>
-            <View style={{flex:0.8 , justifyContent : 'center'}}>
-                <Icon type="font-awesome-5" name="circle" color={"black"} solid size={35}/>   
-            </View>
-                         
-
-            <View style={{flex:4}}>
-               
-            </View>
-          </View>
-          
-          <View style={styles.Title}>
-            <View style={{flex:1.85 }}>
-             
-            </View>
-            <View style={{flex:1 , height: '100%', justifyContent: 'space-around' , flexDirection: 'row'}}>
-              <View></View>
-              <View style={{ height : '100%', borderColor: '#D22115' , borderWidth : 8}}></View>
-              <View></View>
-            </View>
-
-            <View style={{flex:4, flexDirection : 'column' , paddingLeft: 10 ,   paddingBottom : 20,}}>
-            <View style = {{backgroundColor : '#f5f5f5' ,width : '50%', height : 50 , marginBottom : 20  , borderRadius : 20 , alignItems: 'center', justifyContent: 'center' ,     shadowColor: '#000',shadowOffset: {width: 0, height: 4,},
-              shadowOpacity: 0.3,
-              shadowRadius: 4.65,
-              elevation: 8, }}>
-              <Text style = {{fontSize : 25 , fontWeight : 'bold'}}>DA6582</Text>
-            </View>
-              <View style={{marginBottom : 10 , flexDirection: 'column'}}>
-                <Text style={{fontSize : 20 , fontWeight : 'bold'}}>Design UI</Text>
-                <View style = {{flexDirection: 'row'}}>
-                <Text style={{fontSize : 18 }}>Design UI mockup 3 screens: home, detail, report<Text style={{fontSize : 18  , color : '#929Cb1'}}>- by Van Tuan Tran</Text></Text>
-                
-                </View>
-              </View>
-            </View>
-          </View>
-      </View>
-  )
-}
-
-export default Report
+export default Report;
 
 const styles = StyleSheet.create({
-
-  container :{
-
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
   },
-  header:{
-    flexDirection : 'row',
-    alignItems:'flex-end',
-    justifyContent : 'flex-start',
+  title: {
+    fontWeight: 'bold',
   },
-  Title:{
-    flexDirection : 'row',
-    alignItems:'flex-end',
-    justifyContent : 'flex-start',
-  
-  }
-
-
-})
-
+  description: {
+    color: 'gray',
+  },
+});

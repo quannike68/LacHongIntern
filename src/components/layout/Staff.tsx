@@ -1,61 +1,124 @@
-import React from 'react'
-import { View , Text ,TouchableOpacity ,StyleSheet } from 'react-native';
-import { Icon ,Button , LinearProgress , ListItem } from "@rneui/themed";
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import getUserDataFromToken from '../../utils/GetUserDataFromToken';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
-export default function Staff() {
-    const dataUser = [{"id":1,"name":"Agnesse Sculley","role":"manager"},
-    {"id":2,"name":"Leupold Creboe","role":"staff"},
-    {"id":3,"name":"Chandler Basindale","role":"staff"},
-    {"id":4,"name":"Yuri Baxster","role":"staff"},
-    {"id":5,"name":"Elsa Rosendale","role":"staff"},
-    {"id":6,"name":"Ed Spendlove","role":"staff"},
-    {"id":7,"name":"Regine Rutter","role":"staff"},
-    {"id":8,"name":"Christoper Raincin","role":"staff"},
-    {"id":9,"name":"Minetta Prattington","role":"staff"},
-    {"id":10,"name":"Allyn Hallmark","role":"staff"}]
 
+
+const ListComponent = () => {
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const [formData, setFormData] = useState([]);
+
+
+  useEffect(() =>{
+        const getAllUserDepartment = async () =>{
+            const inforUser = await getUserDataFromToken();
+            const idDepartment =await inforUser.UserProperty.department_id;
+            const token = await AsyncStorage.getItem('authorization');
+            if(idDepartment && token ){
+                    const response  = await axios.get(`http://localhost:3050/users/admin/getAllStaffInDepartment/${idDepartment}` , {
+                        headers:{
+                            authorization: token,
+                        }})
+                        if (response) {
+                            setFormData(response.data.data.users)
+                            
+                        }
+                    
+            }
+        }
+        
+        
+        getAllUserDepartment();
+  },[])
+
+  const renderItem = ({ item } : any) => (
+    <TouchableOpacity 
+      style={styles.itemContainer}
+      onPress={() => {
+        setSelectedItem(item);
+        setModalVisible(true);
+      }}
+    >
+      <Text style={styles.text}>{item.username}</Text>
+      {/* <Text style={styles.text}>{item.role}</Text>
+      <Text style={styles.text}>{item.department}</Text> */}
+    </TouchableOpacity>
+  );
 
   return (
-    <View>
-           <View >
-           <ListItem style = {{flex : 1 , borderBottomWidth : 2  , backgroundColor : '#D9D9D9'}}>
-                <ListItem.Content style = {{flex : 1.5 , alignItems : 'center'}}>
-                    <ListItem.Title style = {{fontWeight : 'bold'}}>Name</ListItem.Title>
-                </ListItem.Content>
-                <ListItem.Content style = {{flex : 1 ,alignItems : 'center'}}>
-                    <ListItem.Title style = {{fontWeight : 'bold'}}>Role</ListItem.Title>
-                </ListItem.Content>
-                <ListItem.Content style = {{flex : 1}}>
-                    <ListItem.Title></ListItem.Title>
-                </ListItem.Content>
-           </ListItem>
+    <View style={styles.container}>
+        
+      <FlatList
+        data={formData}
+        renderItem={renderItem}
+        keyExtractor={item => item.user_id.toString()}
+      />
 
-           {dataUser.map((user , index) =>
-                <ListItem key={index} style={{flex: 1 ,justifyContent : 'space-between' , alignItems : 'center'} }>
-                    <ListItem.Content  style = {{flex : 1.5 , alignItems : 'center'}}>
-                        <ListItem.Title>{user.name}</ListItem.Title>
-                    </ListItem.Content >
-                    <ListItem.Content style = {{flex : 1 ,alignItems : 'center'}}>
-                        <ListItem.Title>{user.role}</ListItem.Title>
-                    </ListItem.Content>
-                    <ListItem.Content style = {{flex : 1 , justifyContent : 'space-around' , flexDirection : 'row'}}>
-                        <Button 
-                         icon={
-                            <Icon type="font-awesome-5" name="pen" color={"black"} solid size={20} /> 
-                                    }
-                             type="clear"
-                        />
-                        <Button 
-                            icon={
-                                <Icon type="font-awesome-5" name="trash" color={"red"} solid size={20} />
-                                    }
-                                type="clear"
-                            />    
-                    </ListItem.Content>
-                </ListItem>
-             )}
-
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View style={styles.centeredView}>
+          {selectedItem && (
+            <View>
+              <Text style={styles.modalText}>Name: {selectedItem.username}</Text>
+              <Text style={styles.modalText}>Role: {selectedItem.role}</Text>
+              <Text style={styles.modalText}>Department: {selectedItem.department}</Text>
+            </View>
+          )}
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setModalVisible(!modalVisible)}
+          >
+            <Text>Close</Text>
+          </TouchableOpacity>
         </View>
-</View>
-  )
-}
+      </Modal>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 22,
+    marginHorizontal : 20
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    padding: 10,
+    marginBottom : 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc'
+  },
+  text: {
+    flex: 1,
+    fontSize: 16
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 18
+  },
+  button: {
+    alignItems: "center",
+    backgroundColor: "#DDDDDD",
+    padding: 10
+  }
+});
+
+export default ListComponent;
