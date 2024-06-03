@@ -3,85 +3,49 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal } from 'react
 import getUserDataFromToken from '../../utils/GetUserDataFromToken';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { Icon } from '@rneui/themed';
 
+const data = [
+  { id: '1', name: 'Trần Văn Điệp', role: 'Manager', department: 'Kĩ thuật' },
+  { id: '2', name: 'Trần Văn A', role: 'Manager', department: 'Thiết Kế' },
+  { id: '3', name: 'Trần Văn B', role: 'Staff', department: 'Kĩ thuật' },
+  { id: '4', name: 'Trần Văn C', role: 'Staff', department: 'Kĩ thuật' },
+  { id: '5', name: 'Trần Văn D', role: 'Staff', department: 'Kĩ thuật' },
+  { id: '6', name: 'Trần Văn E', role: 'Staff', department: 'Kĩ thuật' },
+];
 
 
 const ListComponent = () => {
-  const [selectedItem, setSelectedItem] = useState<any>(null);
-  const [modalVisible, setModalVisible] = useState(false);
+ 
 
-  const [formData, setFormData] = useState([]);
-
-
-  useEffect(() =>{
-        const getAllUserDepartment = async () =>{
-            const inforUser = await getUserDataFromToken();
-            const idDepartment =await inforUser.UserProperty.department_id;
-            const token = await AsyncStorage.getItem('authorization');
-            if(idDepartment && token ){
-                    const response  = await axios.get(`http://localhost:3050/users/admin/getAllStaffInDepartment/${idDepartment}` , {
-                        headers:{
-                            authorization: token,
-                        }})
-                        if (response) {
-                            setFormData(response.data.data.users)
-                            
-                        }
-                    
-            }
-        }
-        
-        
-        getAllUserDepartment();
-  },[])
-
-  const renderItem = ({ item } : any) => (
-    <TouchableOpacity 
-      style={styles.itemContainer}
-      onPress={() => {
-        setSelectedItem(item);
-        setModalVisible(true);
-      }}
-    >
-      <Text style={styles.text}>{item.username}</Text>
-      {/* <Text style={styles.text}>{item.role}</Text>
-      <Text style={styles.text}>{item.department}</Text> */}
-    </TouchableOpacity>
+  const renderItem = ({ item } :  any) => (
+    <View style={styles.itemContainer}>
+      <Text style={styles.itemText}>{item.name}</Text>
+      <Text style={styles.itemText}>{item.role}</Text>
+      <Text style={styles.itemText}>{item.department}</Text>
+      <TouchableOpacity style={styles.iconButton}>
+          {<Icon type="feather" name="user" color={'black'} size={30} />}
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.iconButton}>
+          {<Icon type="feather" name="user" color={'black'} size={30} />}
+      </TouchableOpacity>
+    </View>
   );
-
   return (
     <View style={styles.container}>
-        
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Name</Text>
+        <Text style={styles.headerText}>Role</Text>
+        <Text style={styles.headerText}>Department</Text>
+      </View>
       <FlatList
-        data={formData}
+        data={data}
         renderItem={renderItem}
-        keyExtractor={item => item.user_id.toString()}
+        keyExtractor={item => item.id}
       />
-
-      <Modal
-        animationType="slide"
-        transparent={false}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
-      >
-        <View style={styles.centeredView}>
-          {selectedItem && (
-            <View>
-              <Text style={styles.modalText}>Name: {selectedItem.username}</Text>
-              <Text style={styles.modalText}>Role: {selectedItem.role}</Text>
-              <Text style={styles.modalText}>Department: {selectedItem.department}</Text>
-            </View>
-          )}
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setModalVisible(!modalVisible)}
-          >
-            <Text>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
+      <TouchableOpacity style={styles.addButton}>
+        <Text style={styles.addButtonText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -89,36 +53,58 @@ const ListComponent = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 22,
-    marginHorizontal : 20
+    padding: 16,
+    backgroundColor: '#F0F4F8',
+  },
+  header: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    paddingBottom: 8,
+    marginBottom: 8,
+  },
+  headerText: {
+    flex: 1,
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   itemContainer: {
     flexDirection: 'row',
-    padding: 10,
-    marginBottom : 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc'
+    alignItems: 'center',
+    paddingVertical: 8,
+    backgroundColor: '#fff',
+    marginBottom: 8,
+    borderRadius: 8,
+    paddingHorizontal: 8,
   },
-  text: {
+  itemText: {
     flex: 1,
-    fontSize: 16
+    fontSize: 14,
   },
-  centeredView: {
-    flex: 1,
+  iconButton: {
+    padding: 8,
+  },
+  icon: {
+    width: 20,
+    height: 20,
+  },
+  addButton: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    backgroundColor: '#007bff',
+    borderRadius: 50,
+    width: 50,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 22
   },
-  modalText: {
-    marginBottom: 15,
-    textAlign: 'center',
-    fontSize: 18
+  addButtonText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
   },
-  button: {
-    alignItems: "center",
-    backgroundColor: "#DDDDDD",
-    padding: 10
-  }
 });
+
 
 export default ListComponent;

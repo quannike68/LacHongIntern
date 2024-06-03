@@ -10,7 +10,7 @@ import {Icon, Button, LinearProgress, ListItem} from '@rneui/themed';
 import NavButton from '../components/layout/NavButton';
 import Report from '../components/layout/Report';
 import InforProject from '../components/layout/InforProject';
-import Task from '../components/layout/Task';
+import Task from '../components/common/ListTask';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import GetdDetallProject from '../utils/GetDetailProject';
 import axios from 'axios';
@@ -43,7 +43,6 @@ export default function Project() {
         if(response){
           setTask(response.data)
           console.log(task);
-          
         }
     }
     getTask()

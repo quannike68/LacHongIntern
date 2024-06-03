@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import getUserDataFromToken from '../utils/GetUserDataFromToken';
 import GetDepartmentByIdUser from '../utils/GetDepartmentByIdUser';
 import GetAllActivityByYourProperty from '../utils/GetAllActivity';
+import { getDetailUser } from '../api/userApi';
 
 
 
@@ -20,10 +21,12 @@ const HomeStaffManager = () => {
 
   const [Department, setDepartment] = useState('');
 
-  //   const [Department, setDepartment] = useState('');
+  const [userData, setUserData] = useState(null);
 
+
+  
   const Logout = async () => {
-    await AsyncStorage.removeItem('accessToken');
+    await AsyncStorage.removeItem('authorization');
     navigation.navigate('Login');
   };
 

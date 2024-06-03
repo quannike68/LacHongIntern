@@ -2,9 +2,9 @@ import React from 'react';
 
 import {useNavigation} from '@react-navigation/native';
 import {Icon, Button} from '@rneui/themed';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 
-export default function NavButton() {
+export default function NavButtonAdmin() {
   const navigation: any = useNavigation();
 
   return (
@@ -18,17 +18,17 @@ export default function NavButton() {
           alignItems: 'flex-end',
         }}>
         <Button
-          icon={<Icon type="feather" name="user" color={'black'} size={30} />}
-          type="clear"
-          onPress={() => {
-            navigation.navigate('AccountInfor');
-          }}
-        />
-        <Button
           icon={<Icon type="feather" name="home" color={'black'} size={30} />}
           type="clear"
           onPress={() => {
-            navigation.navigate('HomeStaffManager');
+            navigation.navigate('HomeAdmin');
+          }}
+        />
+        <Button
+          icon={<Icon type="feather" name="user" color={'black'} size={30} />}
+          type="clear"
+          onPress={() => {
+            navigation.navigate('UserAdmin');
           }}
         />
         <Button
@@ -36,7 +36,20 @@ export default function NavButton() {
             <Icon type="feather" name="archive" color={'black'} size={30} />
           }
           type="clear"
-          onPress={() => navigation.navigate('Departments')}
+          onPress={() => navigation.navigate('ProjectAdmin')}
+        />
+
+        <Button
+          icon={
+            <Icon
+              type="font-awesome-5"
+              name="tasks"
+              color={'black'}
+              size={30}
+            />
+          }
+          type="clear"
+          onPress={() => navigation.navigate('TaskAdmin')}
         />
       </View>
     </View>

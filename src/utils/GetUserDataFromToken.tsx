@@ -8,7 +8,7 @@ const getUserDataFromToken = async () => {
 
     if (token) {
       const decodedToken: any = jwtDecode(token);
-
+      
       const userEmail = decodedToken.email;
       if (userEmail) {
         const response = await axios.get(
@@ -20,6 +20,7 @@ const getUserDataFromToken = async () => {
           },
         );
         if (response.data) {
+          
           return response.data.data;
         } else {
           throw new Error('Email not found in token');
