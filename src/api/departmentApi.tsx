@@ -1,10 +1,13 @@
 import axios from 'axios';
+import {axiosInstance} from './defineAPI';
 
 //Tao phòng ban mới
 export const createDepartment = async (data: any, token: any) => {
   try {
-    const response = await axios.post(
-      `http://localhost:3050/departments/admin/create`,
+    console.log(data);
+
+    const response = await axiosInstance.post(
+      `/departments/admin/create`,
       data,
       {
         headers: {
@@ -13,7 +16,7 @@ export const createDepartment = async (data: any, token: any) => {
       },
     );
     if (response) {
-      console.log(response.data.message);
+      return response.data;
     } else {
       throw new Error('Create department error');
     }
@@ -25,8 +28,8 @@ export const createDepartment = async (data: any, token: any) => {
 //Cập nhật thông tin phong ban
 export const updateDepartment = async (id: any, data: any, token: any) => {
   try {
-    const response = await axios.put(
-      `http://localhost:3050/departments/admin/update/${id}`,
+    const response = await axiosInstance.put(
+      `/departments/admin/update/${id}`,
       data,
       {
         headers: {
@@ -47,17 +50,11 @@ export const updateDepartment = async (id: any, data: any, token: any) => {
 //Lay ra tat ca phong ban
 export const getAllDepartment = async (token: any) => {
   try {
-    const response = await axios.get(
-      `http://localhost:3050/departments/admin/getAll`,
-      {
-        headers: {
-          authorization: token,
-          'Content-Type': 'application/json', 
-          Accept: 'application/json',
-          
-        },
+    const response = await axiosInstance.get(`/departments/admin/get-all`, {
+      headers: {
+        authorization: token,
       },
-    );
+    });
     if (response) {
       console.log(response.data.message);
       return response.data;
@@ -73,14 +70,11 @@ export const getAllDepartment = async (token: any) => {
 //Lấy ra thông tin phong ban
 export const getDetailDepartment = async (id: any, token: any) => {
   try {
-    const response = await axios.get(
-      `http://localhost:3050/departments/detail/${id}`,
-      {
-        headers: {
-          authorization: token,
-        },
+    const response = await axiosInstance.get(`/departments/detail/${id}`, {
+      headers: {
+        authorization: token,
       },
-    );
+    });
     if (response) {
       console.log(response.data.message);
       return response.data.data;
@@ -96,7 +90,7 @@ export const getDetailDepartment = async (id: any, token: any) => {
 //Xoá phong ban
 export const deleteDepartment = async (id: any, token: any) => {
   try {
-    const response = await axios.delete(
+    const response = await axiosInstance.delete(
       `http://localhost:3050/departments/admin/delete/${id}`,
       {
         headers: {

@@ -15,7 +15,7 @@ const DepartmentList = () => {
   });
 
   //detail all department
-  const [formDataDepartment, setFormDataDepartment] = useState<any>({});
+  const [formDataDepartment, setFormDataDepartment] = useState<any>();
 
   //Lấy thông tin Account
   useEffect(() => {
@@ -40,31 +40,7 @@ const DepartmentList = () => {
       }
     };
     detailUser();
-  }, [formDataAccount, setFormDataAcount]);
-
-  //Lấy ra thông tin tất cả phòng ban
-  useEffect(() => {
-    const allDepartment = async () => {
-      try {
-        const token = await AsyncStorage.getItem('authorization');
-        if (token) {
-          const response = await getAllDepartment(token);
-          if (response) {
-            console.log(JSON.stringify(response.data.departments.information));
-
-            setFormDataDepartment(() => response.data.departments);
-          } else {
-            console.log(`Get all department error`);
-          }
-        } else {
-          console.log(`Token invalid`);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    allDepartment();
-  }, [setFormDataDepartment]);
+  }, []);
 
   return (
     <View style={{flex: 1}}>

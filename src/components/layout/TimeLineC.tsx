@@ -95,6 +95,17 @@ const TimelineC = (props: any) => {
 
   const _renderItemDetail = useCallback(
     (item: any, index: any) => {
+      
+      const activitiesByDate = item.tasks.reduce((acc: any, task: any) => {
+        Object.keys(task.activities).forEach((date: string) => {
+          if (!acc[date]) {
+            acc[date] = [];
+          }
+          acc[date] = acc[date].concat(task.activities[date]);
+        });
+        return acc;
+      }, {});
+
       return (
         <View>
           <TouchableOpacity
@@ -102,6 +113,7 @@ const TimelineC = (props: any) => {
               backgroundColor: '#F5F5F5',
               width: 100,
               borderRadius: 15,
+              marginBottom: 10,
             }}
             activeOpacity={0.8}>
             <Text
@@ -111,29 +123,46 @@ const TimelineC = (props: any) => {
                 fontSize: 20,
                 textAlign: 'center',
               }}>
-              {item.project}
+              {item.projectCode}
             </Text>
           </TouchableOpacity>
-          {item.tasks.map((task: any, index: number) => (
-            <View key={index}>
+          {item.tasks?.map((task: any, taskIndex: number) => (
+            <View key={taskIndex} style={{marginBottom: 10}}>
               <Text style={[styles.title]} allowFontScaling={true}>
-                {task.name}
+                {task.description}
               </Text>
-              {task.activities.map((activity: any, index: number) => (
-                <View key={index}>
-                  <Text
-                    style={{
-                      fontSize: 16,
-                      color: '#282A31',
-                      fontWeight: 'normal',
-                    }}>
-                    {activity.description}
-                    <Text style={{fontStyle: 'italic', color: '#929CB1'}}>
-                      {' by ' + activity.staff}
+              {Object.keys(activitiesByDate).length > 0 &&
+                Object.keys(activitiesByDate).map((date: string) => (
+                  <View key={date}>
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        color: '#282A31',
+                        fontWeight: 'normal',
+                        marginTop: 10,
+                      }}>
+                      Ngày: {date}
                     </Text>
-                  </Text>
-                </View>
-              ))}
+                    {activitiesByDate[date].map(
+                      (activity: any, activityIndex: number) => (
+                        <View key={activityIndex} style={{paddingLeft: 10}}>
+                          <Text
+                            style={{
+                              fontSize: 16,
+                              color: '#282A31',
+                              fontWeight: 'normal',
+                            }}>
+                            {activity.description}
+                            <Text
+                              style={{fontStyle: 'italic', color: '#929CB1'}}>
+                              {' by ' + activity.user_information.name}
+                            </Text>
+                          </Text>
+                        </View>
+                      ),
+                    )}
+                  </View>
+                ))}
             </View>
           ))}
         </View>
@@ -144,29 +173,12 @@ const TimelineC = (props: any) => {
 
   const renderDetail = (rowData: any, rowID: number) => {
     const {isAllowFontScaling} = props;
-    let description;
-    if (typeof rowData.description === 'string') {
-      description = (
-        <Text
-          style={[
-            styles.description,
-            props.descriptionStyle,
-            rowData.descriptionStyle,
-          ]}
-          allowFontScaling={isAllowFontScaling}>
-          {rowData.description}
-        </Text>
-      );
-    } else if (typeof rowData.description === 'object') {
-      description = rowData.description;
-    }
-
     return (
       <View style={styles.container}>
         <FlatList
-          data={rowData.content}
+          data={state.data}
           renderItem={({item, index}) => _renderItemDetail(item, index)}
-          keyExtractor={(item, index) => `${item.project}-${index}`}
+          keyExtractor={(item, index) => `${item.project_id}-${index}`}
         />
       </View>
     );
@@ -271,6 +283,7 @@ const TimelineC = (props: any) => {
       </View>
     );
   };
+
   const renderEvent = (rowData: any, rowID: number) => {
     const handleLayout = (event: LayoutChangeEvent) => {
       const {x, width} = event.nativeEvent.layout;

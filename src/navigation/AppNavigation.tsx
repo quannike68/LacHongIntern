@@ -2,7 +2,7 @@ import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import Login from '../screens/CommonScreens/LoginScreen';
-import HomeStaffManager from '../screens/homeStaffManager';
+import ReportDepartment from '../screens/CommonScreens/ReportDepartment';
 import Departments from '../screens/departments';
 import Project from '../screens/project';
 import HomeActivites from '../screens/homeActivites';
@@ -13,7 +13,7 @@ import UserAdmin from '../screens/AdminScreens/UserAdminScreen';
 import TaskAdmin from '../screens/AdminScreens/TaskAdminScreen';
 import ProfileScreen from '../screens/CommonScreens/AccountInforScreen';
 import ProfileStaffScreen from '../screens/CommonScreens/ProfileStaffScreen';
-
+import ActivityScreen from '../screens/CommonScreens/ActivityScreens';
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigation() {
@@ -36,6 +36,15 @@ export default function AppNavigation() {
             />
           )}
         </Stack.Screen>
+        <Stack.Screen name="ActivityScreen" options={{headerShown: false}}>
+          {props => (
+            <Authen
+              {...props}
+              component={ActivityScreen}
+              allowedRoles={['STAFF', 'MANAGER', 'ADMIN']}
+            />
+          )}
+        </Stack.Screen>
         <Stack.Screen name="ProfileStaffScreen" options={{headerShown: false}}>
           {props => (
             <Authen
@@ -54,11 +63,11 @@ export default function AppNavigation() {
             />
           )}
         </Stack.Screen>
-        <Stack.Screen name="HomeStaffManager" options={{headerShown: false}}>
+        <Stack.Screen name="ReportDepartment" options={{headerShown: false}}>
           {props => (
             <Authen
               {...props}
-              component={HomeStaffManager}
+              component={ReportDepartment}
               allowedRoles={['STAFF', 'MANAGER', 'ADMIN']}
             />
           )}

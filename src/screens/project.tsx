@@ -8,13 +8,13 @@ import {
 } from 'react-native';
 import {Icon, Button, LinearProgress, ListItem} from '@rneui/themed';
 import NavButton from '../components/layout/NavButton';
-import Report from '../components/layout/Report';
+
 import InforProject from '../components/layout/InforProject';
 import Task from '../components/common/ListTask';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import GetdDetallProject from '../utils/GetDetailProject';
+
 import axios from 'axios';
-import GetAllTaskInProject from '../utils/GetAllTask';
+
 
 export default function Project() {
   const navigation : any = useNavigation()
@@ -25,31 +25,7 @@ export default function Project() {
   const [detailProject , setDetailProject] = useState<any>({})
   const [task , setTask] = useState<any>([]);
   
-  useEffect(() => {
-      const detailProjects = async() =>{
-        const response = await GetdDetallProject(projectId);
-        if(response){
-            setDetailProject(response)
-        }else{
-          console.log('Get project by id error');
-        }
-      }
-      detailProjects();
-  },[])
-
-  useEffect(() => {
-    const getTask = async() => {
-        const response: any = await GetAllTaskInProject(projectId)
-        if(response){
-          setTask(response.data)
-          console.log(task);
-        }
-    }
-    getTask()
-  }, [])
-
-
-
+  
   return (
     <View style={{backgroundColor: '#CFDFE4', height: '100%', flex: 1}}>
       <View style={{flex: 1}}>
@@ -104,11 +80,11 @@ export default function Project() {
 
       <View style={{flex: 2.8}}>
         
-        {titleBtn == 'Report' && <Report />}
+ 
         {titleBtn == 'Infor' && <View>
           <InforProject data = {detailProject}/>
           </View>}
-        {titleBtn == 'Task' && <Task data = {task}/>}
+        {/* {titleBtn == 'Task' && <Task data = {task}/>} */}
         
       </View>
 

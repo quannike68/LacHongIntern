@@ -14,27 +14,31 @@ const AdminHeader = ({data}: any) => {
   };
 
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('ProfileScreen')}>
-      <View style={styles.container}>
-        <View style={styles.profileContainer}>
-          <Icon type="font-awesome-5" name="user" color={'black'} size={35} />
-          <View style={styles.textContainer}>
-            <Text style={styles.adminName}>{data.username}</Text>
-            <Text style={styles.adminRole}>{data.role}</Text>
+    <View style={styles.container}>
+      <View style={styles.profileContainer}>
+        <TouchableOpacity
+          style={{width: '50%'}}
+          onPress={() => navigation.navigate('ProfileScreen')}>
+          <View style={styles.userHeader}>
+            <Icon type="font-awesome-5" name="user" color={'black'} size={35} />
+            <View style={styles.textContainer}>
+              <Text style={styles.adminName}>{data.username}</Text>
+              <Text style={styles.adminRole}>{data.role}</Text>
+            </View>
           </View>
-          <View style={styles.shareIconContainer}>
-            <TouchableOpacity onPress={Logout}>
-              <Icon
-                type="font-awesome-5"
-                name="sign-out-alt"
-                color={'black'}
-                size={35}
-              />
-            </TouchableOpacity>
-          </View>
+        </TouchableOpacity>
+        <View style={styles.shareIconContainer}>
+          <TouchableOpacity onPress={Logout}>
+            <Icon
+              type="font-awesome-5"
+              name="sign-out-alt"
+              color={'black'}
+              size={35}
+            />
+          </TouchableOpacity>
         </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 
@@ -53,12 +57,13 @@ const styles = StyleSheet.create({
   profileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
-  profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 16,
+
+  userHeader: {
+    width: '100%',
+    flexDirection: 'row',
   },
   textContainer: {
     flex: 1,

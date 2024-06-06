@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import {Icon} from '@rneui/themed';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -10,8 +10,75 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
+import {getDetailUser, updateUser} from '../../api/userApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = () => {
+  const [formDataAccount, setFormDataAcount] = useState({
+    username: '',
+    role: '',
+    email: '',
+    phone: '',
+    name: '',
+    birthday: '',
+  });
+
+  const [idAccount, setIdAccount] = useState<any>();
+
+  const getDetailAccount = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authorization');
+      if (token) {
+        const response = await getDetailUser(token);
+        if (response) {
+          setFormDataAcount({
+            ...formDataAccount,
+            name: response.data.name,
+            username: response.data.username,
+            role: response.data.UserProperty.role.name,
+            email: response.data.email,
+            phone: response.data.phone,
+            birthday: response.data.birthday,
+          });
+          setIdAccount(response.data.user_id);
+        } else {
+          console.log(`Get detail user error`);
+        }
+      } else {
+        console.log(`Token invalid`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updateAccount = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authorization');
+      if (token) {
+        const response = await updateUser(idAccount, formDataAccount, token);
+        if (response) {
+          console.log(response);
+        } else {
+          console.log(`Update detail user error`);
+        }
+      } else {
+        console.log(`Token invalid`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const Logout = async () => {
+    await AsyncStorage.removeItem('authorization');
+    navigation.navigate('Login');
+  };
+
+  useEffect(() => {
+    getDetailAccount();
+  }, []);
+
   const navigation: any = useNavigation();
   return (
     <View style={styles.container}>
@@ -40,8 +107,8 @@ const ProfileScreen = () => {
             <Icon type="font-awesome-5" name="user" size={24} color="black" />
           </View>
           <View>
-            <Text style={styles.profileName}>Trần Hán Quân</Text>
-            <Text style={styles.profileRole}>Role</Text>
+            <Text style={styles.profileName}>{formDataAccount.username}</Text>
+            <Text style={styles.profileRole}>{formDataAccount.role}</Text>
           </View>
         </View>
       </View>
@@ -49,16 +116,40 @@ const ProfileScreen = () => {
       <View style={styles.inputContainer}>
         <ScrollView>
           <Text style={styles.label}>Full name</Text>
-          <TextInput style={styles.input} value="Trần Hán Quân" />
+          <TextInput
+            style={styles.input}
+            value={formDataAccount.name}
+            onChangeText={text =>
+              setFormDataAcount({...formDataAccount, name: text})
+            }
+          />
           <Text style={styles.label}>Email</Text>
-          <TextInput style={styles.input} value="email@gmail.com" />
+          <TextInput
+            style={styles.input}
+            value={formDataAccount.email}
+            onChangeText={text =>
+              setFormDataAcount({...formDataAccount, email: text})
+            }
+          />
           <Text style={styles.label}>Phone number</Text>
-          <TextInput style={styles.input} value="0123456789" />
+          <TextInput
+            style={styles.input}
+            value={formDataAccount.phone}
+            onChangeText={text =>
+              setFormDataAcount({...formDataAccount, phone: text})
+            }
+          />
           <Text style={styles.label}>Birthday</Text>
-          <TextInput style={styles.input} value="01/01/2001" />
+          <TextInput
+            style={styles.input}
+            value={formDataAccount.birthday}
+            onChangeText={text =>
+              setFormDataAcount({...formDataAccount, birthday: text})
+            }
+          />
         </ScrollView>
       </View>
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity style={styles.addButton} onPress={updateAccount}>
         <Text style={styles.addButtonText}>ADD</Text>
       </TouchableOpacity>
       <View style={styles.divider} />
@@ -66,7 +157,7 @@ const ProfileScreen = () => {
         <Text style={styles.changePasswordText}>Change Password</Text>
       </TouchableOpacity>
       <View style={styles.divider} />
-      <TouchableOpacity style={styles.logoutContainer}>
+      <TouchableOpacity style={styles.logoutContainer} onPress={Logout}>
         <Icon type="font-awesome-5" name="sign-out-alt" size={24} color="red" />
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>

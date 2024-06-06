@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
-import {Icon} from '@rneui/themed';
-import React, {useState} from 'react';
+import {Icon, ListItem} from '@rneui/themed';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -13,13 +13,18 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getAllUser} from '../../../api/userApi';
-import {deleteDepartment} from '../../../api/departmentApi';
+import {
+  createDepartment,
+  deleteDepartment,
+  getAllDepartment,
+} from '../../../api/departmentApi';
 
 const DepartmentList = ({data}: any) => {
   const [modalVisible, setModalVisible] = useState<any>(false);
   const [modalCreate, setModalCreate] = useState<any>(false);
   const [userVisible, setUserVisible] = useState<any>(false);
   const [dataUser, setDataUser] = useState<any>();
+  const [colorById, setColorById] = useState<any>();
 
   const [projectDetails, setProjectDetails] = useState({
     department_id: '',
@@ -28,13 +33,22 @@ const DepartmentList = ({data}: any) => {
     manager_id: '',
   });
 
+  const [departmentCreacte, setDepartmentCreacte] = useState({
+    name: '',
+    description: '',
+    manager_id: '',
+  });
+
+  const [departmentList, setDepartmentList] = useState<any>(data);
+  console.log(departmentList);
+
   const handleGetAlluser = async () => {
     try {
       const token = await AsyncStorage.getItem('authorization');
       if (token) {
         const response = await getAllUser(token);
         if (response) {
-          setDataUser(response);
+          setDataUser(response.users);
         }
       }
     } catch (error) {
@@ -45,12 +59,11 @@ const DepartmentList = ({data}: any) => {
   const handelDelete = async (id: any) => {
     try {
       const token = await AsyncStorage.getItem('authorization');
-      console.log(id);
-
       if (token) {
         const response = await deleteDepartment(id, token);
         if (response) {
           console.log(`Xoa thanh cong phong ban`);
+          allDepartment();
         }
       }
     } catch (error) {
@@ -64,70 +77,133 @@ const DepartmentList = ({data}: any) => {
     setProjectDetails(prev => ({...prev, [name]: value}));
   };
 
-  const renderItem = ({item}: any) => {
-    const manager = item.description.information?.manager || {};
+  const handleCreateDapartment = (name: any, value: any) => {
+    setDepartmentCreacte(prev => ({...prev, [name]: value}));
+    setColorById(value);
+  };
+
+  const allDepartment = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authorization');
+      console.log(token);
+
+      if (token) {
+        const response = await getAllDepartment(token);
+        if (response) {
+          setDepartmentList(() => response.data.departments);
+        } else {
+          console.log(`Get all department error`);
+        }
+      } else {
+        console.log(`Token invalid`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //Lấy ra thông tin tất cả phòng ban
+  useEffect(() => {
+    allDepartment();
+  }, []);
+
+  const handelCreate = async (data: any) => {
+    try {
+      const token = await AsyncStorage.getItem('authorization');
+      console.log('data', data);
+      if (token) {
+        const response = await createDepartment(data, token);
+
+        if (response) {
+          allDepartment();
+          // console.log(response);
+        }
+      } else console.log(`token invalid`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const renderItem = useCallback(
+    ({item}: any) => {
+      const manager = item.information?.manager || {};
+      const information = item.information;
+      // console.log(item.information.total_staff);
+
+      return (
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('ReportDepartment', {
+              idDepartment: item.department_id,
+            })
+          }>
+          <View style={styles.itemContainer}>
+            <Text style={styles.departmentName}>{item.name}</Text>
+            <View style={styles.leadContainer}>
+              <Text style={styles.leadType}>
+                Manager: {manager.username || 'N/A'}
+              </Text>
+            </View>
+            <Text style={styles.memberCount}>
+              {information?.total_staff} members
+            </Text>
+            <View style={styles.actionsContainer}>
+              <TouchableOpacity
+                style={styles.infoButton}
+                onPress={() => {
+                  setProjectDetails(prev => ({
+                    ...prev,
+                    department_id: item.department_id,
+                    name: item.name,
+                    description: item.description,
+                  }));
+                  setModalVisible(true);
+                }}>
+                <Text>Info</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => {
+                  handelDelete(item.department_id);
+                }}>
+                <Text>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      );
+    },
+    [departmentList],
+  );
+
+  const renderDataUser = ({item}: any) => {
+    const backgroundColor = item.user_id === colorById ? '#277DDE' : '#fff';
 
     return (
       <TouchableOpacity
-        onPress={() =>
-          navigation.navigate('Departments', {idDepartment: item.department_id})
-        }>
-        <View style={styles.itemContainer}>
-          <Text style={styles.departmentName}>{item.name}</Text>
-          <View style={styles.leadContainer}>
-            <Text style={styles.leadType}>
-              Manager: {manager.username || 'N/A'}
-            </Text>
-          </View>
-          <Text style={styles.memberCount}>
-            {item.information.total_staff} members
-          </Text>
-          <View style={styles.actionsContainer}>
-            <TouchableOpacity
-              style={styles.infoButton}
-              onPress={() => {
-                setProjectDetails(prev => ({
-                  ...prev,
-                  department_id: item.department_id,
-                  name: item.name,
-                  description: item.description,
-                }));
-                setModalVisible(true);
-              }}>
-              <Text>Info</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => {
-                handelDelete(item.department_id);
-              }}>
-              <Text>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        onPress={() => handleCreateDapartment('manager_id', item.user_id)}
+        style={[styles.userItem, {backgroundColor}]}>
+        <ListItem.Content>
+          <ListItem.Title>{item.username}</ListItem.Title>
+        </ListItem.Content>
       </TouchableOpacity>
     );
   };
 
-  const renderUser = ({data}: any) => (
-    <TouchableOpacity>
-      <View style={{}}>
-        <Text style={{}}>{data.username}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
   return (
     <View style={styles.container}>
       <FlatList
-        data={data}
+        data={departmentList}
         renderItem={renderItem}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.department_id.toString()}
       />
-      <TouchableOpacity style={styles.addButton} onPress={() => {setModalCreate(true)}}>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => {
+          setModalCreate(true);
+        }}>
         <Icon type="font-awesome-5" name="plus" color="#fff" />
       </TouchableOpacity>
-
       <Modal
         animationType="slide"
         transparent={true}
@@ -167,6 +243,7 @@ const DepartmentList = ({data}: any) => {
                 onPress={() => {
                   handleGetAlluser();
                   setUserVisible(true);
+                  setUserVisible(true);
                 }}>
                 <Icon
                   type="font-awesome"
@@ -186,8 +263,68 @@ const DepartmentList = ({data}: any) => {
           </View>
         </View>
       </Modal>
+      {/* //Modal create Department */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalCreate}
+        onRequestClose={() => setModalCreate(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalLabel}>Department name</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={departmentCreacte.name}
+              onChangeText={text => handleCreateDapartment('name', text)}
+            />
 
+            <Text style={styles.modalLabel}>Description</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={departmentCreacte.description}
+              onChangeText={text => handleCreateDapartment('description', text)}
+            />
 
+            <View style={{flexDirection: 'column'}}>
+              <TouchableOpacity
+                onPress={() => {
+                  handleGetAlluser();
+                  setUserVisible(true);
+                }}
+                style={{flexDirection: 'row'}}>
+                <Text style={styles.modalLabel}>Manager</Text>
+                <Icon
+                  type="font-awesome"
+                  name="angle-down"
+                  size={34}
+                  color="#000"
+                  style={{marginHorizontal: 10, paddingBottom: 10}}
+                />
+              </TouchableOpacity>
+              {userVisible && (
+                <FlatList
+                  data={dataUser}
+                  renderItem={renderDataUser}
+                  keyExtractor={item => item.user_id.toString()}
+                  style={styles.userList}
+                />
+              )}
+            </View>
+            <Button
+              title="Cancel"
+              color="red"
+              onPress={() => setModalCreate(false)}
+            />
+            <Button
+              title="Save"
+              onPress={() => {
+                handelCreate(departmentCreacte);
+                setModalCreate(false);
+              }}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -274,7 +411,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   modalLabel: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 5,
   },
@@ -288,6 +425,14 @@ const styles = StyleSheet.create({
   managerInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  userItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  userList: {
+    maxHeight: 200, // Giới hạn chiều cao của danh sách người dùng
   },
 });
 

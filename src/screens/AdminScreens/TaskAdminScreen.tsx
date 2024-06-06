@@ -5,6 +5,8 @@ import TaskList from '../../components/common/ListTask';
 import HeaderAdmin from '../../components/layout/AdminLayout/AdminHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getDetailUser} from '../../api/userApi';
+import {getAllTask} from '../../api/taskApi';
+
 const TaskAdmin = () => {
   //info user
   const [formDataAccount, setFormDataAcount] = useState({
@@ -12,30 +14,56 @@ const TaskAdmin = () => {
     role: '',
   });
 
+  const [listTasks, getListTasks] = useState<any>();
+
   //Lấy thông tin Account
-  useEffect(() => {
-    const detailUser = async () => {
-      try {
-        const token = await AsyncStorage.getItem('authorization');
-        if (token) {
-          const response = await getDetailUser(token);
-          if (response) {
-            setFormDataAcount(() => ({
-              username: response.data.username,
-              role: response.data.UserProperty.role.name,
-            }));
-          } else {
-            console.log(`Get detail user error`);
-          }
+
+  const detailUser = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authorization');
+      if (token) {
+        const response = await getDetailUser(token);
+        if (response) {
+          setFormDataAcount(() => ({
+            username: response.data.username,
+            role: response.data.UserProperty.role.name,
+          }));
         } else {
-          console.log(`Token invalid`);
+          console.log(`Get detail user error`);
         }
-      } catch (error) {
-        console.log(error);
+      } else {
+        console.log(`Token invalid`);
       }
-    };
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const listDepartment = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authorization');
+      if (token) {
+        const response = await getAllTask(token);
+        if (response) {
+          getListTasks(response.data);
+        } else {
+          console.log(`Get all task error`);
+        }
+      } else {
+        console.log(`Token invalid`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
     detailUser();
-  }, [formDataAccount, setFormDataAcount]);
+  }, []);
+
+  useEffect(() => {
+    listDepartment();
+  }, []);
 
   return (
     <View style={{flex: 1}}>
@@ -69,7 +97,7 @@ const TaskAdmin = () => {
           shadowRadius: 8,
           elevation: 8,
         }}>
-        <TaskList />
+        <TaskList data={listTasks} refreshData={listDepartment} />
       </View>
       <View
         style={{

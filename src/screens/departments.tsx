@@ -12,10 +12,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Department from '../components/layout/Department';
 import NavButton from '../components/layout/NavButton';
-import Staff from '../components/layout/Staff';
+
 import Information from '../components/layout/Information';
 import axios from 'axios';
-import getUserDataFromToken from '../utils/GetUserDataFromToken';
+
 
 
 export default function Departments() {
@@ -41,27 +41,7 @@ export default function Departments() {
     department_id: ''
   });
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-     const inforUser = await getUserDataFromToken();
-     
-      const idDepartment = inforUser.UserProperty.department_id;
-      if(idDepartment){
-        setFormData(prevFormData => ({
-          ...prevFormData,
-          department_id: idDepartment
-        }));
-        setFormDataInput(prevFormData => ({
-          ...prevFormData,
-          role_id: inforUser.UserProperty.role.role_id,
-          department_id: idDepartment
-        }));
-      }
-      }
 
-    fetchUserData();
-  }, []);
-     
 
   const handleInputChange = (name: any, value : any) => {
     setFormData(prevState => ({ ...prevState, [name]: value }));
@@ -393,7 +373,7 @@ export default function Departments() {
         }}>
         {titleBtn == 'Project' && <Department />}
         {titleBtn == 'Infor' && <Information />}
-        {titleBtn == 'Staff' && <Staff />}
+  
       </View>
 
       <View

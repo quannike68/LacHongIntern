@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {Icon} from '@rneui/themed';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 
 const ProfileStaffScreen = () => {
   const navigation = useNavigation();
+  const router = useRoute();
+  const {idUser}: any = router.params;
+
+  console.log(idUser);
 
   return (
     <View style={styles.container}>

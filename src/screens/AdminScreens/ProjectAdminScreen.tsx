@@ -1,16 +1,20 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import NavButtonAdmin from '../../components/layout/AdminLayout/AdminNav';
-import AdminProject from '../../components/common/ListProject';
+import ListProject from '../../components/common/ListProject';
 import HeaderAdmin from '../../components/layout/AdminLayout/AdminHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getDetailUser} from '../../api/userApi';
+import {getAllProject} from '../../api/projectApi';
+
 const ProjectAdmin = () => {
   //info user
   const [formDataAccount, setFormDataAcount] = useState({
     username: '',
     role: '',
   });
+
+  const [listProject, setListProject] = useState<any>({});
 
   //Lấy thông tin Account
   useEffect(() => {
@@ -35,7 +39,31 @@ const ProjectAdmin = () => {
       }
     };
     detailUser();
-  }, [formDataAccount, setFormDataAcount]);
+  }, []);
+
+  //Lấy tất cả project
+
+  const listAllProject = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authorization');
+      if (token) {
+        const response = await getAllProject(token);
+        if (response) {
+          setListProject(response.data.data);
+        } else {
+          console.log(`Get all error`);
+        }
+      } else {
+        console.log(`Token invalid`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    listAllProject();
+  }, []);
 
   return (
     <View style={{flex: 1}}>
@@ -70,7 +98,7 @@ const ProjectAdmin = () => {
           shadowRadius: 8,
           elevation: 8,
         }}>
-        <AdminProject />
+        <ListProject data={listProject} refreshData={listAllProject} />
       </View>
       <View
         style={{
