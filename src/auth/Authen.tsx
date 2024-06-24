@@ -10,10 +10,10 @@ const Authen = ({component: Component, allowedRoles}: any) => {
   useFocusEffect(
     useCallback(() => {
       const checkAccessTokenAndRole = async () => {
-        const token = await AsyncStorage.getItem('authorization');
+        // const token = await AsyncStorage.getItem('authorization');
         const role = await AsyncStorage.getItem('role');
 
-        if (!token || !allowedRoles.includes(role)) {
+        if (!allowedRoles.includes(role)) {
           navigation.navigate('Login');
         } else {
           setIsLoading(false);

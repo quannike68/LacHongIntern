@@ -8,23 +8,30 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {axiosInstance} from '../../api/defineAPI';
+import {showToastMessage} from '../../components/common/ToastMessageCustom';
+import {SafeAreaView} from 'react-native';
+
+import Toast from 'react-native-toast-message';
+import LinearGradient from 'react-native-linear-gradient';
+import axios from 'axios';
 
 export default function Login() {
   const navigation: any = useNavigation();
-  const [username, setUsername] = useState('admin2@gmail.com');
-  const [password, setPassword] = useState('zxczxc123');
+  const [username, setUsername] = useState('quannike68@gmail.com');
+  const [password, setPassword] = useState('123456');
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post(
-        'http://localhost:3050/gateway/api/access/login',
-        {
-          email: username,
-          password: password,
-        },
-      );
+      const data = {
+        email: username,
+        password: password,
+      };
+      const response = await axiosInstance.post('/gateway/api/access/login', {
+        email: username,
+        password: password,
+      });
       if (response.data.status == 200 && response.data) {
         await AsyncStorage.setItem(
           'authorization',
@@ -32,16 +39,30 @@ export default function Login() {
         );
         await AsyncStorage.setItem('role', response.data.data.role);
         const Role = await AsyncStorage.getItem('role');
-
         if (Role == 'ADMIN') {
-          navigation.navigate('HomeAdmin');
+          navigation.navigate('HomeAdminNavigate');
+        } else if (Role == 'MANAGER') {
+          navigation.navigate('ReportDepartment');
+        } else {
+          navigation.navigate('ReportDepartment');
         }
-        if (Role == 'STAFF' || response.data.data.role == 'MANAGER') {
-          navigation.navigate('HomeStaffManager');
-        }
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Login false',
+          text2: 'Tai khoản mật khẩu không chính xác',
+          autoHide: true,
+          visibilityTime: 2500,
+        });
       }
     } catch (error) {
-      console.log(error);
+      Toast.show({
+        type: 'error',
+        text1: 'Login false',
+        text2: 'Network Error',
+        autoHide: true,
+        visibilityTime: 2500,
+      });
     }
   };
 
@@ -49,7 +70,7 @@ export default function Login() {
     <View style={styles.container}>
       <View style={styles.top}>
         <Image
-          source={require('../../assets/img/Logo.png')}
+          source={require('../../assets/imgLogin/Logo.png')}
           style={styles.logoImage}
           resizeMode="contain"
         />
@@ -58,7 +79,7 @@ export default function Login() {
       <View style={styles.middle}>
         <View>
           <Image
-            source={require('../../assets/img/Text-logo.png')}
+            source={require('../../assets/imgLogin/Text-logo.png')}
             style={styles.image}
             resizeMode="contain"
           />
@@ -88,10 +109,15 @@ export default function Login() {
 
       {/* View chứa nút Đăng Nhập */}
       <View style={styles.bottom}>
-        <TouchableOpacity style={styles.buttom} onPress={handleLogin}>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.text}>Đăng Nhập</Text>
         </TouchableOpacity>
       </View>
+      <TouchableOpacity
+        style={styles.forget_password}
+        onPress={() => navigation.navigate('ForgetPassword')}>
+        <Text style={styles.forget_password_text}>Quên mật khẩu</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -99,23 +125,22 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
   },
   top: {
-    flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     paddingHorizontal: 20,
+    marginBottom: 20,
   },
   middle: {
-    flex: 2,
     justifyContent: 'flex-start',
     alignItems: 'center',
+    width: '100%',
   },
   bottom: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 20,
   },
   logoImage: {
     width: 100,
@@ -124,13 +149,15 @@ const styles = StyleSheet.create({
   image: {
     width: 200,
   },
-  buttom: {
+  button: {
     backgroundColor: 'rgba(29, 97, 174, 1)',
     paddingHorizontal: 80,
     paddingVertical: 15,
     borderRadius: 15,
   },
-  text: {color: 'white'},
+  text: {
+    color: 'white',
+  },
   input: {
     height: 40,
     width: 300,
@@ -139,5 +166,15 @@ const styles = StyleSheet.create({
     padding: 10,
     borderColor: 'black',
     borderRadius: 15,
+  },
+  forget_password: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 15,
+  },
+  forget_password_text: {
+    textDecorationLine: 'underline',
+    fontSize: 15,
+    color: 'rgba(29, 97, 174, 1)',
   },
 });

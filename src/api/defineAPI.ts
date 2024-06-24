@@ -2,10 +2,10 @@ import axios from 'axios';
 
 export const BaseURL = 'http://localhost:3050';
 
-export const ServerBaseURL = 'http://10.100.1.153:3050';
+export const ServerBaseURL = 'http://118.70.171.240:9301';
 
 export const axiosInstance = axios.create({
-  baseURL: BaseURL,
+  baseURL: ServerBaseURL,
   headers: {
     'Content-Type': 'application/json',
   },

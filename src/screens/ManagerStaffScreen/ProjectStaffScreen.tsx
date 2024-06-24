@@ -1,53 +1,28 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import NavButtonAdmin from '../../components/layout/AdminLayout/AdminNav';
+
 import ListProject from '../../components/common/ListProject';
-import HeaderAdmin from '../../components/layout/AdminLayout/AdminHeader';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {getDetailUser} from '../../api/userApi';
-import {getAllProject} from '../../api/projectApi';
+import {getAllProjectinDepartment} from '../../api/projectApi';
+// import NavButton from '../../components/layout/StaffManagerLayout/NavButton';
+import {getDetailDepartment} from '../../api/departmentApi';
 
-const ProjectAdmin = () => {
-  //info user
-  const [formDataAccount, setFormDataAcount] = useState({
-    username: '',
-    role: '',
-  });
 
+const ProjectStaff = () => {
+  // const route = useRoute();
+  // const {idDepartments}: any = route.params;
   const [listProject, setListProject] = useState<any>({});
-
-  //Lấy thông tin Account
-  useEffect(() => {
-    const detailUser = async () => {
-      try {
-        const token = await AsyncStorage.getItem('authorization');
-        if (token) {
-          const response = await getDetailUser(token);
-          if (response) {
-            setFormDataAcount(() => ({
-              username: response.data.username,
-              role: response.data.UserProperty.role.name,
-            }));
-          } else {
-            console.log(`Get detail user error`);
-          }
-        } else {
-          console.log(`Token invalid`);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    detailUser();
-  }, []);
+  const [detailDepartment, setdetailDepartment] = useState<any>({});
 
   //Lấy tất cả project
-
-  const listAllProject = async () => {
+  const listAllProjectDepartment = async () => {
     try {
       const token = await AsyncStorage.getItem('authorization');
+      const idDepartment = await AsyncStorage.getItem('IdDepartment');
+
       if (token) {
-        const response = await getAllProject(token);
+        const response = await getAllProjectinDepartment(idDepartment, token);
         if (response) {
           setListProject(response.data.data);
         } else {
@@ -61,35 +36,67 @@ const ProjectAdmin = () => {
     }
   };
 
+  const detalDepartment = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authorization');
+      const idDepartment = await AsyncStorage.getItem('IdDepartment');
+      if (token) {
+        const response = await getDetailDepartment(idDepartment, token);
+        if (response) {
+          setdetailDepartment(response);
+        } else {
+          console.log(`Get all error`);
+        }
+      } else {
+        console.log(`Token invalid`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    listAllProject();
+    listAllProjectDepartment();
+  }, []);
+
+  useEffect(() => {
+    detalDepartment();
   }, []);
 
   return (
     <View style={{flex: 1}}>
-      <HeaderAdmin data={formDataAccount} />
       <View
-        style={{
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#ffffff',
-          padding: 20,
-          shadowColor: '#000',
-          shadowOffset: {width: 1, height: 1},
-          shadowOpacity: 0.2,
-          shadowRadius: 8,
-          elevation: 8,
-        }}>
-        <Text style={{fontSize: 20, fontWeight: 'bold'}}>Project</Text>
+        style={{justifyContent: 'center', alignItems: 'center', marginTop: 20}}>
+        <Text
+          style={{
+            fontSize: 35,
+            fontWeight: 'bold',
+            color: '#929CB1',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          {detailDepartment.name}
+        </Text>
+
+        <Text
+          style={{
+            textAlign: 'center',
+            fontSize: 25,
+            color: '#929CB1',
+            width: '80%',
+          }}>
+          {detailDepartment.description}
+        </Text>
       </View>
 
       <View
         style={{
           backgroundColor: '#ffffff',
-          height: '65%',
+          height: '70%',
           width: 'auto',
           paddingTop: 10,
           marginTop: 20,
+          paddingVertical: 20,
           marginHorizontal: 20,
           borderRadius: 20,
           shadowColor: '#000',
@@ -98,7 +105,11 @@ const ProjectAdmin = () => {
           shadowRadius: 8,
           elevation: 8,
         }}>
-        <ListProject data={listProject} refreshData={listAllProject} />
+        <ListProject
+          data={listProject}
+          refreshData={listAllProjectDepartment}
+          id={detailDepartment.department_id}
+        />
       </View>
       <View
         style={{
@@ -110,7 +121,7 @@ const ProjectAdmin = () => {
           shadowRadius: 8,
           elevation: 8,
         }}>
-        <NavButtonAdmin />
+        {/* <NavButton /> */}
       </View>
     </View>
   );
@@ -161,4 +172,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProjectAdmin;
+export default ProjectStaff;

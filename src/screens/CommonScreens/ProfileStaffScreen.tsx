@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -8,13 +8,53 @@ import {
 } from 'react-native';
 import {Icon} from '@rneui/themed';
 import {useNavigation, useRoute} from '@react-navigation/native';
+import {getDetailUser, getDetailUserById} from '../../api/userApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileStaffScreen = () => {
   const navigation = useNavigation();
-  const router = useRoute();
-  const {idUser}: any = router.params;
+  const route = useRoute();
+  const {idUser}: any = route.params;
 
-  console.log(idUser);
+  const [formDataAccount, setFormDataAcount] = useState({
+    username: '',
+    role: '',
+    email: '',
+    phone: '',
+    name: '',
+    birthday: '',
+  });
+  console.log(formDataAccount);
+
+  const getDetailAccount = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authorization');
+      if (token) {
+        const response = await getDetailUserById(token, idUser);
+        if (response) {
+          setFormDataAcount({
+            ...formDataAccount,
+            name: response.data.name,
+            username: response.data.username,
+            role: response.data.UserProperty.role.name,
+            email: response.data.email,
+            phone: response.data.phone,
+            birthday: response.data.birthday,
+          });
+        } else {
+          console.log(`Get detail user error`);
+        }
+      } else {
+        console.log(`Token invalid`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getDetailAccount();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -37,19 +77,19 @@ const ProfileStaffScreen = () => {
           }}>
           <Icon type="font-awesome-5" name="user" size={70} color="black" />
         </View>
-        <Text style={styles.profileName}>Trần Văn Diệp</Text>
-        <Text style={styles.profileRole}>Technical department management</Text>
+        <Text style={styles.profileName}>{formDataAccount.username}</Text>
+        {/* <Text style={styles.profileRole}>Technical department management</Text> */}
       </View>
       <View style={styles.infoContainer}>
-        <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>{formDataAccount.email}</Text>
         <TextInput
           style={styles.input}
           value="email@gmail.com"
           editable={false}
         />
-        <Text style={styles.label}>Phone number</Text>
+        <Text style={styles.label}>{formDataAccount.phone}</Text>
         <TextInput style={styles.input} value="0123456789" editable={false} />
-        <Text style={styles.label}>Birthday</Text>
+        <Text style={styles.label}>{formDataAccount.birthday}</Text>
         <TextInput style={styles.input} value="11/9/1998" editable={false} />
       </View>
     </View>

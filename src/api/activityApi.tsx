@@ -26,7 +26,8 @@ export const getAllActivityFromTask = async (id: any, token: any) => {
 export const createActivity = async (data: any, token: any) => {
   try {
     const response = await axiosInstance.post(
-      `http://localhost:3050/activities/create`,data,
+      `http://localhost:3050/activities/create`,
+      data,
       {
         headers: {
           authorization: token,

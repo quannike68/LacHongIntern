@@ -4,7 +4,7 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const AdminHeader = ({data}: any) => {
+const DetailHeader = ({data}: any) => {
   const navigation: any = useNavigation();
 
   //Hàm đăng xuẩt
@@ -84,4 +84,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AdminHeader;
+export default DetailHeader;

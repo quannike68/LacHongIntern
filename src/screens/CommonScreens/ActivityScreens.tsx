@@ -36,40 +36,6 @@ const App = () => {
   const [listActivity, setListActivity] = useState();
   console.log(listActivity);
 
-  //   const detailUser = async (id: any) => {
-  //     try {
-  //       const token = await AsyncStorage.getItem('authorization');
-  //       if (token) {
-  //         const response: any = await getDetailUserById(token, id);
-  //         if (response) {
-  //           return response.data;
-  //         } else {
-  //           console.log(`get detail error `);
-  //         }
-  //       } else {
-  //         console.log(`Token invalid`);
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-
-  //   const processData = async (listActivity: any) => {
-  //     const descriptionsAndUsers = await Promise.all(
-  //       data.map(async item => {
-  //         const user = await detailUser(item);
-  //         return {
-  //           description: item.description,
-  //           user: user,
-  //         };
-  //       }),
-  //     );
-
-  //     console.log(descriptionsAndUsers);
-  //   };
-
-  //   processData(listActivity);
-
   const getDetailTasks = async () => {
     try {
       const token = await AsyncStorage.getItem('authorization');
@@ -101,7 +67,7 @@ const App = () => {
       const token = await AsyncStorage.getItem('authorization');
       if (token) {
         const response: any = await getAllActivityFromTask(
-          data.task_property_id,
+          task.task_property_id,
           token,
         );
         if (response) {
@@ -136,12 +102,13 @@ const App = () => {
   };
 
   useEffect(() => {
-    getAllActivity();
-  }, []);
-  
-  useEffect(() => {
     getDetailTasks();
   }, []);
+
+  useEffect(() => {
+    getAllActivity();
+  }, [task]);
+
   const navigation: any = useNavigation();
   const renderItem = ({item}: any) => {
     return (

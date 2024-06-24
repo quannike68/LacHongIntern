@@ -4,7 +4,7 @@
 // import {Icon, Button} from '@rneui/themed';
 // import {View} from 'react-native';
 
-// export default function NavButtonAdmin() {
+// export default function NavButtonAdminDepartment() {
 //   const navigation: any = useNavigation();
 
 //   return (

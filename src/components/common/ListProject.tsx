@@ -15,30 +15,34 @@ import {
   deleteProject,
   updateDetailProject,
 } from '../../api/projectApi';
+import {useNavigation} from '@react-navigation/native';
 
-const ListProject = ({data, refreshData}: any) => {
+const ListProject = ({data, refreshData, id}: any) => {
+  const navigation: any = useNavigation();
   const [projects, setProjects] = useState<any>(data);
+
   const [createModal, setCreateModal] = useState<any>(false);
   const [updateModal, setUpdateModal] = useState<any>(false);
   const [idProject, setIdProject] = useState<any>();
+  const [role, setRole] = useState();
+  const [idUser, setIdUser] = useState();
 
   const [newProject, setNewProject] = useState({
     name: 'code thanh toán zalopay1',
     projectCode: 'ASA',
     description: 'làm vào ứng dụng abc',
     endAt: '2024-05-10T03:09:26.363Z',
-    department_id: '6661dade2d2bbcabdb7402f2',
-    client_id: '663bb2189a305f5e276b0fef',
+    department_id: id || '',
+    client_id: '',
   });
-  console.log(data);
 
   const [updateProject, setUpdateProject] = useState({
-    name: 'code thanh toán zalopay',
-    projectCode: 'A333033',
-    description: 'làm vào ứng dụng abc',
+    name: '',
+    projectCode: '',
+    description: '',
     endAt: '2024-05-10T03:09:26.363Z',
-    department_id: '6633dc58c772bbb8f0d30477',
-    client_id: '663bb2189a305f5e276b0fef',
+    department_id: id || '',
+    client_id: idUser || '',
   });
 
   const formatDate = (dateString: string) => {
@@ -113,81 +117,115 @@ const ListProject = ({data, refreshData}: any) => {
       console.log(error);
     }
   };
-
   const Item = useCallback(
     ({item}: any) => {
-      console.log(item);
-
       return (
-        <View style={styles.item}>
-          <View
-            style={{
-              flexDirection: 'row',
-              width: '100%',
-              justifyContent: 'space-between',
-              marginBottom: 5,
-              alignItems: 'center',
-            }}>
-            <TouchableOpacity>
-              <Text style={styles.code}>{item.projectCode}</Text>
-            </TouchableOpacity>
-            <View style={{alignItems: 'flex-start', flexDirection: 'row'}}>
-              <Button
-                icon={
-                  <Icon
-                    name="trash"
-                    type="font-awesome-5"
-                    size={20}
-                    color="red"
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('Project', {idProject: item.project_id})
+          }>
+          <View style={styles.item}>
+            <View
+              style={{
+                flexDirection: 'row',
+                width: '100%',
+                justifyContent: 'space-between',
+                marginBottom: 5,
+                alignItems: 'center',
+              }}>
+              <TouchableOpacity>
+                <Text style={styles.code}>{item.projectCode}</Text>
+              </TouchableOpacity>
+
+              {(role == 'MANAGER' || role == 'ADMIN') && (
+                <View style={{alignItems: 'flex-start', flexDirection: 'row'}}>
+                  <Button
+                    icon={
+                      <Icon
+                        name="trash"
+                        type="font-awesome-5"
+                        size={20}
+                        color="red"
+                      />
+                    }
+                    onPress={() => handDeleteProject(item.project_id)}
+                    type="clear"
                   />
-                }
-                onPress={() => handDeleteProject(item.project_id)}
-                type="clear"
-              />
-              <Button
-                icon={
-                  <Icon
-                    name="edit"
-                    type="font-awesome-5"
-                    size={20}
-                    color="green"
+                  <Button
+                    icon={
+                      <Icon
+                        name="edit"
+                        type="font-awesome-5"
+                        size={20}
+                        color="green"
+                      />
+                    }
+                    type="clear"
+                    onPress={() => {
+                      setIdProject(item.project_id);
+                      setUpdateProject(prev => ({
+                        ...prev,
+                        name: item.name,
+                        projectCode: item.projectCode,
+                        description: item.description,
+                        endAt: item.endAt,
+                        department_id: item.department_id,
+                        client_id: item.client_id,
+                      }));
+                      setUpdateModal(true);
+                    }}
                   />
-                }
-                type="clear"
-                onPress={() => {
-                  setIdProject(item.project_id);
-                  setUpdateModal(true);
-                }}
-              />
+                </View>
+              )}
             </View>
+            <Text style={styles.name}>{item.name}</Text>
+            <View style={{flexDirection: 'row', marginBottom: 20}}>
+              <Text style={[styles.date, {color: data.color}]}>
+                {formatDate(item.startAt)}
+              </Text>
+              <Text> - </Text>
+              <Text style={[styles.date, {color: data.color}]}>
+                {formatDate(item.endAt)}
+              </Text>
+            </View>
+            <LinearProgress
+              value={calculateDaysBetween(item.endAt) / 30}
+              animation={{duration: 1000}}
+              style={{height: 15, borderRadius: 15}}
+              color={
+                calculateDaysBetween(item.endAt) <= 7
+                  ? 'rgba(243, 60, 60, 1)'
+                  : calculateDaysBetween(item.endAt) <= 14
+                  ? 'rgba(228, 129, 38, 1)'
+                  : 'rgba(22, 159, 40, 1)'
+              }
+            />
           </View>
-          <Text style={styles.name}>{item.name}</Text>
-          <View style={{flexDirection: 'row', marginBottom: 20}}>
-            <Text style={[styles.date, {color: data.color}]}>
-              {formatDate(item.startAt)}
-            </Text>
-            <Text> - </Text>
-            <Text style={[styles.date, {color: data.color}]}>
-              {formatDate(item.endAt)}
-            </Text>
-          </View>
-          <LinearProgress
-            value={calculateDaysBetween(item.endAt) / 30}
-            animation={{duration: 1000}}
-            style={{height: 15, borderRadius: 15}}
-            color={
-              calculateDaysBetween(item.endAt) <= 7
-                ? 'rgba(243, 60, 60, 1)'
-                : calculateDaysBetween(item.endAt) <= 14
-                ? 'rgba(228, 129, 38, 1)'
-                : 'rgba(22, 159, 40, 1)'
-            }
-          />
-        </View>
+        </TouchableOpacity>
       );
     },
-    [projects],
+    [role, projects],
   );
+  useEffect(() => {
+    const getData = async () => {
+      const role: any = await AsyncStorage.getItem('role');
+      // const idUser: any = await AsyncStorage.getItem('idUser');
+      if (role) {
+        setRole(role);
+        // setNewProject(prev => ({
+        //   ...prev,
+        //   client_id: idUser,
+        // }));
+        // setUpdateProject(prev => ({
+        //   ...prev,
+        //   client_id: idUser,
+        // }));
+        // setIdUser(idUser);
+      }
+    };
+    getData();
+  }, []);
+
   useEffect(() => {
     setProjects(data);
   }, [data]);
@@ -209,8 +247,8 @@ const ListProject = ({data, refreshData}: any) => {
       <Modal
         animationType="fade"
         transparent={true}
-        visible={createModal}
-        onRequestClose={() => setCreateModal(false)}>
+        visible={updateModal}
+        onRequestClose={() => setUpdateModal(false)}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <TextInput
@@ -253,14 +291,15 @@ const ListProject = ({data, refreshData}: any) => {
                 setUpdateProject({...updateProject, department_id: text})
               }
             />
-            <TextInput
+            
+            {/* <TextInput
               style={styles.input}
               placeholder="Client ID"
               value={updateProject.client_id}
               onChangeText={text =>
                 setUpdateProject({...updateProject, client_id: text})
               }
-            />
+            /> */}
             <View
               style={{
                 flexDirection: 'row',
@@ -269,10 +308,10 @@ const ListProject = ({data, refreshData}: any) => {
                 marginVertical: 20,
               }}>
               <Button
-                title="Create"
-                onPress={() => handlCreateProject(newProject)}
+                title="Update"
+                onPress={() => handUpdateProject(idProject, updateProject)}
               />
-              <Button title="Cancel" onPress={() => setCreateModal(false)} />
+              <Button title="Cancel" onPress={() => setUpdateModal(false)} />
             </View>
           </View>
         </View>
@@ -281,8 +320,8 @@ const ListProject = ({data, refreshData}: any) => {
       <Modal
         animationType="fade"
         transparent={true}
-        visible={updateModal}
-        onRequestClose={() => setUpdateModal(false)}>
+        visible={createModal}
+        onRequestClose={() => setCreateModal(false)}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <TextInput
@@ -321,14 +360,14 @@ const ListProject = ({data, refreshData}: any) => {
                 setNewProject({...newProject, department_id: text})
               }
             />
-            <TextInput
+            {/* <TextInput
               style={styles.input}
               placeholder="Client ID"
               value={newProject.client_id}
               onChangeText={text =>
                 setNewProject({...newProject, client_id: text})
               }
-            />
+            /> */}
             <View
               style={{
                 flexDirection: 'row',
@@ -337,13 +376,13 @@ const ListProject = ({data, refreshData}: any) => {
                 marginVertical: 20,
               }}>
               <Button
-                title="Update"
+                title="Create"
                 onPress={() => {
-                  handUpdateProject(idProject, updateProject);
-                  setUpdateModal(false);
+                  handlCreateProject(newProject);
+                  setCreateModal(false);
                 }}
               />
-              <Button title="Cancel" onPress={() => setUpdateModal(false)} />
+              <Button title="Cancel" onPress={() => setCreateModal(false)} />
             </View>
           </View>
         </View>

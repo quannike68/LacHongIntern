@@ -25,7 +25,7 @@ export const createDepartment = async (data: any, token: any) => {
   }
 };
 
-//Cập nhật thông tin phong ban
+//Cập nhật thông tin phong ban(Admin)
 export const updateDepartment = async (id: any, data: any, token: any) => {
   try {
     const response = await axiosInstance.put(
@@ -38,12 +38,12 @@ export const updateDepartment = async (id: any, data: any, token: any) => {
       },
     );
     if (response) {
-      console.log(response.data.message);
+      return response.data.message;
     } else {
       throw new Error('Update infor department error');
     }
   } catch (error) {
-    console.log(`Update infor department error: ${error}`);
+    throw new Error(`Update infor department error: ${error}`);
   }
 };
 
@@ -57,13 +57,12 @@ export const getAllDepartment = async (token: any) => {
     });
     if (response) {
       console.log(response.data.message);
-      return response.data;
+      return response.data.data.departments;
     } else {
       throw new Error('Get all department error');
     }
   } catch (error) {
-    console.log(`Get all department error: ${error}`);
-    return null;
+    return error;
   }
 };
 
@@ -91,7 +90,7 @@ export const getDetailDepartment = async (id: any, token: any) => {
 export const deleteDepartment = async (id: any, token: any) => {
   try {
     const response = await axiosInstance.delete(
-      `http://localhost:3050/departments/admin/delete/${id}`,
+      `/departments/admin/delete/${id}`,
       {
         headers: {
           authorization: token,
@@ -102,10 +101,9 @@ export const deleteDepartment = async (id: any, token: any) => {
       console.log(response.data.message);
       return response.data.data;
     } else {
-      throw new Error('Create department error');
+      throw new Error('Delate department error');
     }
   } catch (error) {
-    console.log(`Create department error: ${error}`);
-    return null;
+    return error;
   }
 };

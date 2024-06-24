@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useMemo} from 'react';
 import {
   FlatList,
   I18nManager,
@@ -11,6 +11,111 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+
+
+interface UserInformation {
+  user_id: string;
+  username: string;
+  email: string | null;
+  phone: string | null;
+  avatar: string | null;
+  name: string;
+  birthday: string | null;
+  createdAt: string;
+  createdBy: string;
+  deletedMark: boolean;
+  UserProperty: {
+    user_property_id: string;
+    department_id: string | null;
+    role: {
+      name: string;
+    };
+  };
+}
+
+interface Activity {
+  activity_id: string;
+  description: string;
+  createdBy: string;
+  modifiedBy: string | null;
+  createdAt: string;
+  ActivityProperty: ActivityProperty;
+  user_information: UserInformation;
+}
+
+interface Activities {
+  [date: string]: Activity[];
+}
+
+interface ActivityProperty {
+  activity_property_id: string;
+  user_property_id: string;
+  activity_id: string;
+  task_property_id: string;
+}
+
+interface Task {
+  task_id: string;
+  description: string;
+  createdBy: string;
+  modifiedBy: string | null;
+  createdAt: string;
+  TaskProperty: {
+    task_property_id: string;
+    task_id: string;
+  };
+  activities: Activities;
+}
+
+interface ProjectProperty {
+  project_property_id: string;
+  project_id: string;
+  department_id: string;
+  client_id: string;
+}
+
+interface information {
+  total_user: number;
+  total_task: {
+    total_task_is_done: number;
+    total_task_is_not_done: number;
+  };
+}
+
+interface Project {
+  project_id: string;
+  projectCode: string;
+  description: string | null;
+  startAt: string;
+  endAt: string;
+  turnover: string | null;
+  document: string | null;
+  investor: string | null;
+  createdBy: string;
+  modifiedBy: string;
+  createdAt: string;
+  ProjectProperty: ProjectProperty;
+  information: information;
+  tasks: Task[];
+}
+
+
+interface NewProjectFormat {
+  projectCode: string;
+  date : string;
+  task : {
+    task_id : string;
+    description : string;
+    activities :{
+      task_id : string ;
+      description : string;
+      user_information :{
+        user_id : string ;
+        username : string
+      }
+    }
+  }
+}
 
 const defaultCircleSize = 16;
 const defaultCircleColor = '#007AFF';
@@ -27,6 +132,8 @@ const TimelineC = (props: any) => {
     x: 0,
     width: 0,
   });
+
+  console.log('Log', state.data);
 
   let _lineColor: string;
 
@@ -93,78 +200,36 @@ const TimelineC = (props: any) => {
     );
   };
 
-  const _renderItemDetail = useCallback(
-    (item: any, index: any) => {
-      
-      const activitiesByDate = item.tasks.reduce((acc: any, task: any) => {
-        Object.keys(task.activities).forEach((date: string) => {
-          if (!acc[date]) {
-            acc[date] = [];
-          }
-          acc[date] = acc[date].concat(task.activities[date]);
-        });
-        return acc;
-      }, {});
 
+  const _renderItemDetail = useCallback(
+    (rowData: any, rowI : any)  => {
       return (
-        <View>
+        <View key={rowI} style={styles.itemContainer}>
           <TouchableOpacity
-            style={{
-              backgroundColor: '#F5F5F5',
-              width: 100,
-              borderRadius: 15,
-              marginBottom: 10,
-            }}
+            style={styles.projectCodeButton}
             activeOpacity={0.8}>
-            <Text
-              style={{
-                color: '#282A31',
-                fontWeight: 'bold',
-                fontSize: 20,
-                textAlign: 'center',
-              }}>
-              {item.projectCode}
-            </Text>
+            <Text style={styles.projectCodeText}>{rowData.projectCode}</Text>
           </TouchableOpacity>
-          {item.tasks?.map((task: any, taskIndex: number) => (
-            <View key={taskIndex} style={{marginBottom: 10}}>
-              <Text style={[styles.title]} allowFontScaling={true}>
-                {task.description}
-              </Text>
-              {Object.keys(activitiesByDate).length > 0 &&
-                Object.keys(activitiesByDate).map((date: string) => (
-                  <View key={date}>
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        color: '#282A31',
-                        fontWeight: 'normal',
-                        marginTop: 10,
-                      }}>
-                      Ngày: {date}
+          <View style={styles.taskContainer}>
+            {rowData.tasks?.map((task  : any, taskIndex : any) => (
+              <View key={taskIndex} style={styles.taskItem}>
+                <Text style={styles.taskDescription} allowFontScaling={true}>
+                  {task.description}
+                </Text>
+                {task.activities?.map((activity : any, activityIndex : any) => (
+                  <View key={activityIndex} style={styles.activityItem}>
+                    <Text style={styles.activityDescription}>
+                      {activity.description}
+                      <Text style={styles.activityUser}>
+                        {' by ' +
+                          (activity.user_information?.name ?? 'unknown')}
+                      </Text>
                     </Text>
-                    {activitiesByDate[date].map(
-                      (activity: any, activityIndex: number) => (
-                        <View key={activityIndex} style={{paddingLeft: 10}}>
-                          <Text
-                            style={{
-                              fontSize: 16,
-                              color: '#282A31',
-                              fontWeight: 'normal',
-                            }}>
-                            {activity.description}
-                            <Text
-                              style={{fontStyle: 'italic', color: '#929CB1'}}>
-                              {' by ' + activity.user_information.name}
-                            </Text>
-                          </Text>
-                        </View>
-                      ),
-                    )}
                   </View>
                 ))}
-            </View>
-          ))}
+              </View>
+            ))}
+          </View>
         </View>
       );
     },
@@ -172,13 +237,12 @@ const TimelineC = (props: any) => {
   );
 
   const renderDetail = (rowData: any, rowID: number) => {
-    const {isAllowFontScaling} = props;
     return (
       <View style={styles.container}>
         <FlatList
           data={state.data}
           renderItem={({item, index}) => _renderItemDetail(item, index)}
-          keyExtractor={(item, index) => `${item.project_id}-${index}`}
+          keyExtractor={(item, index) => `${item.projectCode}-${index}`}
         />
       </View>
     );
@@ -522,6 +586,49 @@ const styles = StyleSheet.create({
     backgroundColor: '#aaa',
     marginTop: 10,
     marginBottom: 10,
+  },
+  itemContainer: {
+    marginBottom: 20,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+  },
+  projectCodeButton: {
+    backgroundColor: '#F5F5F5',
+    width: 100,
+    borderRadius: 15,
+    marginBottom: 10,
+  },
+  projectCodeText: {
+    color: '#282A31',
+    fontWeight: 'bold',
+    fontSize: 20,
+    textAlign: 'center',
+    padding: 5,
+  },
+  taskContainer: {
+    marginBottom: 10,
+  },
+  taskItem: {
+    marginBottom: 10,
+    paddingLeft: 10,
+  },
+  taskDescription: {
+    fontSize: 16,
+    color: '#282A31',
+  },
+  activityItem: {
+    paddingLeft: 10,
+    marginVertical: 5,
+  },
+  activityDescription: {
+    fontSize: 14,
+    color: '#282A31',
+  },
+  activityUser: {
+    fontStyle: 'italic',
+    color: '#929CB1',
   },
 });
 

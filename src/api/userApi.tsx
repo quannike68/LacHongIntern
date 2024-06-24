@@ -14,8 +14,7 @@ export const getDetailUser = async (token: any) => {
       throw new Error('Get data user error');
     }
   } catch (error) {
-    console.log(`Get detail data error: ${error}`);
-    return null;
+    throw new Error(`Get detail data error: ${error}`);
   }
 };
 
@@ -118,7 +117,8 @@ export const deleteUser = async (id: any, token: any) => {
   }
 };
 
-export const getDetailUserById = async (token: any  , Id : any) => {
+//Lấy thông tin user theo ID
+export const getDetailUserById = async (token: any, Id: any) => {
   try {
     const response = await axiosInstance.get(`/users/information/${Id}`, {
       headers: {
@@ -133,5 +133,35 @@ export const getDetailUserById = async (token: any  , Id : any) => {
   } catch (error) {
     console.log(`Get detail data error: ${error}`);
     return null;
+  }
+};
+
+//Quên mật khẩu
+export const forgetPassword = async (data: any) => {
+  try {
+    const response = await axiosInstance.post(`/users/forget-password`, {
+      email: data.email,
+    });
+    if (response) {
+      return response.data;
+    } else {
+      throw new Error('Email không tồn tại');
+    }
+  } catch (error) {
+    return error;
+  }
+};
+
+//Xác thực OTP
+export const mail_OTP = async (data: any) => {
+  try {
+    const response = await axiosInstance.get(`/email/verify-token`, data);
+    if (response) {
+      return response.data;
+    } else {
+      throw new Error('OTP không tồn tại');
+    }
+  } catch (error) {
+    return error;
   }
 };

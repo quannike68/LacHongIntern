@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import NavButtonAdmin from '../../components/layout/AdminLayout/AdminNav';
 import TaskList from '../../components/common/ListTask';
-import HeaderAdmin from '../../components/layout/AdminLayout/AdminHeader';
+import HeaderAdmin from '../../components/common/DetailHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getDetailUser} from '../../api/userApi';
 import {getAllTask} from '../../api/taskApi';
@@ -108,9 +107,7 @@ const TaskAdmin = () => {
           shadowOpacity: 0.4,
           shadowRadius: 8,
           elevation: 8,
-        }}>
-        <NavButtonAdmin />
-      </View>
+        }}></View>
     </View>
   );
 };

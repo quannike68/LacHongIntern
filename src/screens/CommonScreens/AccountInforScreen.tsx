@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import {Icon} from '@rneui/themed';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useReducer, useState} from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import {getDetailUser, updateUser} from '../../api/userApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import Toast from 'react-native-toast-message';
 const ProfileScreen = () => {
   const [formDataAccount, setFormDataAcount] = useState({
     username: '',
@@ -31,11 +31,13 @@ const ProfileScreen = () => {
       if (token) {
         const response = await getDetailUser(token);
         if (response) {
+          console.log('====================================');
+          console.log(response);
+          console.log('====================================');
           setFormDataAcount({
-            ...formDataAccount,
             name: response.data.name,
             username: response.data.username,
-            role: response.data.UserProperty.role.name,
+            role: response.data.role.name,
             email: response.data.email,
             phone: response.data.phone,
             birthday: response.data.birthday,
@@ -58,15 +60,33 @@ const ProfileScreen = () => {
       if (token) {
         const response = await updateUser(idAccount, formDataAccount, token);
         if (response) {
-          console.log(response);
+          Toast.show({
+            type: 'success',
+            text1: 'Update account',
+            text2: 'Cập nhật thông tin tài khoản thành công',
+            autoHide: true,
+            visibilityTime: 2500,
+          });
         } else {
-          console.log(`Update detail user error`);
+          Toast.show({
+            type: 'error',
+            text1: 'Update account',
+            text2: 'Cập nhật thông tin tài khoản không thành công',
+            autoHide: true,
+            visibilityTime: 2500,
+          });
         }
       } else {
         console.log(`Token invalid`);
       }
     } catch (error) {
-      console.log(error);
+      Toast.show({
+        type: 'error',
+        text1: 'Update account',
+        text2: 'Network error',
+        autoHide: true,
+        visibilityTime: 2500,
+      });
     }
   };
 
@@ -143,14 +163,18 @@ const ProfileScreen = () => {
           <TextInput
             style={styles.input}
             value={formDataAccount.birthday}
+            placeholder="year-month-day"
             onChangeText={text =>
-              setFormDataAcount({...formDataAccount, birthday: text})
+              setFormDataAcount({
+                ...formDataAccount,
+                birthday: text,
+              })
             }
           />
         </ScrollView>
       </View>
       <TouchableOpacity style={styles.addButton} onPress={updateAccount}>
-        <Text style={styles.addButtonText}>ADD</Text>
+        <Text style={styles.addButtonText}>Update</Text>
       </TouchableOpacity>
       <View style={styles.divider} />
       <TouchableOpacity>

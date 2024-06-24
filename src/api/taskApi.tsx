@@ -24,7 +24,7 @@ export const getAllTask = async (token: any) => {
 export const getAllTaskFromProject = async (id: any, token: any) => {
   try {
     const response = await axiosInstance.get(
-      `/assignments/getAllTaskPropertyFromProject/${id}`,
+      `/tasks/get-all-task-in-project/${id}`,
       {
         headers: {
           authorization: token,

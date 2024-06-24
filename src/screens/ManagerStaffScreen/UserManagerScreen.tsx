@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
+// import NavButtonAdmin from '../../components/layout/AdminLayout/AdminNav';
 import UserList from '../../components/common/ListUser';
 import HeaderAdmin from '../../components/common/DetailHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getAllUser, getDetailUser} from '../../api/userApi';
-const UserAdmin = () => {
+const UserManager = () => {
   //info user
   const [formDataAccount, setFormDataAcount] = useState({
     username: '',
@@ -106,9 +107,10 @@ const UserAdmin = () => {
           shadowRadius: 8,
           elevation: 8,
         }}>
+        {/* <NavButtonAdmin /> */}
       </View>
     </View>
   );
 };
 
-export default UserAdmin;
+export default UserManager;

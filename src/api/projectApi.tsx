@@ -24,7 +24,7 @@ export const getAllProject = async (token: any) => {
 export const getAllProjectinDepartment = async (id: any, token: any) => {
   try {
     const response = await axiosInstance.get(
-      `/projects/getAllProjectInDepartment/${id}`,
+      `/projects/get-all-project-in-department/${id}`,
       {
         headers: {
           authorization: token,
@@ -33,7 +33,7 @@ export const getAllProjectinDepartment = async (id: any, token: any) => {
     );
     if (response) {
       console.log(response.data.message);
-      return response.data.data.data.data;
+      return response.data;
     } else {
       throw new Error('Get all project in department error');
     }
@@ -118,5 +118,25 @@ export const updateDetailProject = async (id: any, data: any, token: any) => {
     }
   } catch (error) {
     console.log(`update project error: ${error}`);
+  }
+};
+
+
+export const reportProject = async (id : any ,token: any) => {
+  try {
+    const response = await axiosInstance.get(`/report/report-for-project/${id}`, {
+      headers: {
+        authorization: token,
+      },
+    });
+    if (response) {
+      console.log(response.data.message);
+      return response.data;
+    } else {
+      throw new Error('get report project error');
+    }
+  } catch (error) {
+    console.log(`get report project error ${error}`);
+    return null;
   }
 };

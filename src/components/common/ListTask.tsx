@@ -38,6 +38,7 @@ const TaskList = ({data, refreshData}: any) => {
     id: '',
     name: '',
   });
+  console.log(idTask);
 
   const [listProject, setListPlistProject] = useState<any>();
 
@@ -195,7 +196,7 @@ const TaskList = ({data, refreshData}: any) => {
               allProject();
               setCreateModal(true);
             }}>
-            <Text style={styles.addButtonText}>+ Add activity</Text>
+            <Text style={styles.addButtonText}>+ Add task</Text>
           </TouchableOpacity>
         )}
       />
